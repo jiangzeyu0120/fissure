@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script>
+<script src="https://requirejs.org/docs/release/2.3.5/minified/require.js"> </script>
+
+<head>
+    <img id="fissure" src="input1_resize.jpg" />
+    <canvas id="detection"></canvas>
+    <script>
+        // from image to tensor
+        const wall = new Image()
+        wall.crossOrigin = 'anonymous'
+        wall.src = "input1_resize.jpg" 
+        wall.onload = () => {
+            var wallTensor = tf.browser.fromPixels(wall)
+            wallTensor = tf.slice(wallTensor, [0, 0, 0], [256, 256, 1])
+            wallTensor = wallTensor.expandDims(0)
+            console.log(`Successful conversion from Image() to a ${wallTensor} tensor`)
+            // CNN function
+            async function load(){
+                model = undefined;
+                model = await tf.loadLayersModel("https://raw.githubusercontent.com/jiangzeyu0120/fissure/main/model.json");
+                console.log(`model loaded`);
+                output = model.predict(wallTensor);
+                console.log(`Successful prediction to a ${output} tensor `)
+                output = output.squeeze(0)
+                // from tensor to image
+                const myCanvas = document.getElementById("detection");
+                tf.browser.toPixels(output, myCanvas).then(() => { 
+                    output.dispose();
+                    console.log("Make sure we cleaned up", tf.memory().numTensors);
+                })
+            }
+            load();
+
+        }
+
+       
+    </script>
+
+</head>
+
+<body>
+    <h1 id="demo">my first html fichier</h1>
+    <p id="start"> my first paragraphe</p>
+    <p id="intro"></p>
+    <p id="date"> </p>
+   <script>
+    //document.getElementById("start").innerHTML= "hello javascript";
+    document.write(Date());
+    var x;
+    var day = new Date().getDay();
+    switch(day){
+        case 0 : x="today is sunday"; break;
+        case 6 : x="today is saturday"; break;
+        default: x="expecting...";
+    }
+    document.getElementById("date").innerHTML=x;
+    var person = {firstName:"zeyu", secondName:"jiang",
+                  fullName: function()
+                  {
+                  return this.firstName + "" + this.secondName;
+                  }};
+    document.getElementById("intro").innerHTML=person.fullName();
+
+
+   </script> 
+
+    <h1> my next html fichier</h1>
+    <button onclick="message()">Introduction automatique</button>
+    <script>
+        const name = "valentin";
+        const age = 23;
+        function message()
+        {
+            document.getElementById("520").innerHTML= `i am ${name} and i am ${age} years old.`;
+        };
+    </script>
+    <p id="520"></p>
+
+    
+</body>
+</html>
+
